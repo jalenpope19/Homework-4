@@ -11,6 +11,7 @@ There are two datasets and Canvas provides them. The training data is labeled "t
 Tasks:
 
 A. Train the decision tree classifier on the training data using the Random and Gini Index methods to decide on the splitting attribute.
+
 B. Print the decision tree using code. The code will be printed out in a particular format similar to the example below.
 
 price = low    # One branch of root node
