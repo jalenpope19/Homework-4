@@ -21,6 +21,9 @@ price = low    # One branch of root node
 price = high    # The other branch of root node
 
 | …
+
        |….
+       
 |…
+
        |….
