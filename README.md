@@ -1,12 +1,15 @@
 # Homework-4
 
 Introduction:
+
 The goal is to predict whether a given car is 'profitable' or not based on four categorical attributes: 'price', 'maintenance', 'capacity', and 'airbag' without using any built-in modules.
 
 Dataset:
+
 There are two datassets and they are provided from Canvas. The training data is labeled "trainData" and the testing data is labeled "testData". They are used to evaluate performance.
 
 Tasks:
+
 A. Train the decision tree classifier on the training data using the Random and Gini Index methods to decide on the splitting attribute.
 B. Print the decision tree using code. The code will print out in a particular format similar to the example below.
 
