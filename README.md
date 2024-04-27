@@ -13,9 +13,13 @@ B. Print the decision tree using code. The code will print out in a particular f
 price = low    # One branch of root node
 
 | maintenance = low    
+
             | capacity = 4 : yes         # Reach the decision
+            
 | maintenance = high : no         # Reach the decision
+
 price = high    # The other branch of root node
+
 | …
        |….
 |…
