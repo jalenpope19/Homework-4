@@ -1,0 +1,130 @@
+import math
+import random
+import csv
+import time
+
+class Node:
+    def __init__(self, data, depth, max_depth, attribute_names):
+        self.data = data
+        self.depth = depth
+        self.max_depth = max_depth
+        self.children = {}
+        self.value = self.calculate_value()
+        self.attribute = None
+        self.attribute_names = attribute_names
+        if self.depth < self.max_depth and len(self.data) > 1:
+            self.split()
+
+    def calculate_value(self):
+        profitable_count = sum(row[-1] == 'yes' for row in self.data)
+        not_profitable_count = len(self.data) - profitable_count
+        if profitable_count > not_profitable_count:
+            return 'yes'
+        else:
+            return 'no'
+
+    def gini_index(self, data, attribute):
+        gini = 1.0
+        attr_values = set(row[attribute] for row in data)
+        for value in attr_values:
+            subset = [row for row in data if row[attribute] == value]
+            if len(subset) == 0:
+                continue
+            prob = len(subset) / len(data)
+            profitable_count = sum(row[-1] == 'yes' for row in subset)
+            not_profitable_count = len(subset) - profitable_count
+            if profitable_count == 0 or not_profitable_count == 0:
+                gini -= prob
+            else:
+                gini -= prob * (1 - (profitable_count / len(subset)) ** 2 - (not_profitable_count / len(subset)) ** 2)
+        return gini
+
+    def split(self):
+        if random.randint(0, 1) == 0:  # Random method
+            self.attribute = random.randint(0, len(self.data[0]) - 2)
+        else:  # Gini Index method
+            best_gini = float('inf')
+            best_attribute = None
+            for attribute in range(len(self.data[0]) - 1):
+                gini = self.gini_index(self.data, attribute)
+                if gini < best_gini:
+                    best_gini = gini
+                    best_attribute = attribute
+            self.attribute = best_attribute
+
+        if self.attribute is not None:
+            attr_values = set(row[self.attribute] for row in self.data)
+            for value in attr_values:
+                subset = [row for row in self.data if row[self.attribute] == value]
+                self.children[value] = Node(subset, self.depth + 1, self.max_depth, self.attribute_names)
+
+    def classify(self, row):
+        if not self.children:
+            return self.value
+        value = row[self.attribute]
+        if value in self.children:
+            return self.children[value].classify(row)
+        else:
+            return self.value
+
+    def print_tree(self, indent=''):
+        if self.attribute is not None:
+            attribute_name = self.attribute_names[self.attribute]
+            print(f"{indent}{attribute_name} =")
+            for value, child in self.children.items():
+                print(f"{indent}| {value}")
+                child.print_tree(indent + "|   ")
+        else:
+            print(f"{indent}: {self.value}")
+
+    def count_nodes(self):
+        count = 1
+        for child in self.children.values():
+            count += child.count_nodes()
+        return count
+
+def train(data, max_depth, attribute_names):
+    return Node(data, 0, max_depth, attribute_names)
+
+def test(tree, test_data):
+    correct = 0
+    for row in test_data:
+        prediction = tree.classify(row[:-1])
+        if prediction == row[-1]:
+            correct += 1
+    accuracy = correct / len(test_data)
+    return accuracy
+
+# Loading training data
+with open('trainData.csv', 'r') as file:
+    reader = csv.reader(file)
+    train_data = [row for row in reader]
+
+# Loading test data
+with open('testData.csv', 'r') as file:
+    reader = csv.reader(file)
+    test_data = [row for row in reader]
+
+attribute_names = train_data[0][:-1]  # Extract attribute names the first row
+train_data = train_data[1:]  # Remove header row
+
+# Train decision tree
+max_depth = 5
+start_time = time.time()
+tree = train(train_data, max_depth, attribute_names)
+end_time = time.time()
+running_time = end_time - start_time
+
+# Print decision tree
+print("Decision Tree:")
+tree.print_tree()
+
+# Test decision tree
+accuracy = test(tree, test_data)
+print(f"\nAccuracy: {accuracy * 100:.2f}%")
+
+# Count the number of nodes
+num_nodes = tree.count_nodes()
+print(f"Number of nodes: {num_nodes}")
+
+print(f"Running time: {running_time:.6f} seconds")
